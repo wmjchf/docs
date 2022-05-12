@@ -27,7 +27,12 @@
     ]
   },
   "dependencies": {
-    "react": "^16.12.0 || ^17.0.0"
+    "react": "^16.12.0 || ^17.0.0",
+    "dumi-theme-default": "1.1.21",
+    "f2-touchemulator": "^0.0.1",
+    "lodash.debounce": "^4.0.8",
+    "qrcode.react": "^1.0.0",
+    "umi-hd": "^5.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.15.1",
