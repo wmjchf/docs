@@ -1,6 +1,8 @@
 import { defineConfig } from 'dumi';
 
 export default defineConfig({
+  base: '/docs',
+  publicPath: '/docs/',
   title: 'DogWang',
   favicon:
     'https://static-7dd14d21-a904-4449-a093-dac30aeeac47.bspapp.com/static/logo.png',
