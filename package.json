@@ -11,7 +11,8 @@
     "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
     "test": "umi-test",
     "test:coverage": "umi-test --coverage",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    
   },
   "module": "es/index.js",
   "typings": "es/index.d.ts",
@@ -42,7 +43,7 @@
     "@umijs/test": "^3.0.5",
     "dumi": "^1.1.0",
     "father-build": "^1.17.2",
-    "gh-pages": "^3.0.0",
+    "gh-pages": "^3.2.3",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.1",
     "yorkie": "^2.0.0"

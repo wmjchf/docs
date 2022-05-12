@@ -5,7 +5,7 @@ export default defineConfig({
   favicon:
     'https://static-7dd14d21-a904-4449-a093-dac30aeeac47.bspapp.com/static/logo.png',
   logo: 'https://static-7dd14d21-a904-4449-a093-dac30aeeac47.bspapp.com/static/logo.png',
-  outputPath: 'docs-dist',
+  outputPath: 'dist',
   mode: 'site',
   // more config: https://d.umijs.org/config
   themeConfig: {
