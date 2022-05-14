@@ -36,7 +36,7 @@ common.webpack.js、dev.webpack.js、prod.webpack.js
 }
 ```
 
-- 4、配置公共 config 文件
+- **4、配置公共 config 文件。**
 
 ```js
 const config = {
@@ -65,7 +65,7 @@ const config = {
 module.exports = config;
 ```
 
-- 5、配置开发环境 config 文件
+- **5、配置开发环境 config 文件。**
 
 ```js
 /**
@@ -80,7 +80,7 @@ const config = merge(common, {
 module.exports = config;
 ```
 
-- 6、配置生产环境 config 文件
+- **6、配置生产环境 config 文件。**
 
 ```js
 /**
@@ -160,3 +160,132 @@ npm install webpack-dev-server -D
 至此，运行`npm run build:dev`即可。自动打开浏览器，并且能够实时更新打包。
 
 ## 进阶配置
+
+### 集成 `typescript` 和 `es6`
+
+- 0、resolve.extensions 配置,自动配置文件后缀名。
+
+```js
+resolve: {
+    extensions: [".ts", "..."],
+},
+```
+
+- **1、安装`typescript`、`@babel/core`、`@babel/preset-typescript`、`@babel/preset-env`、`babel-loader`。**
+
+```js
+npm install typescript @babel/core @babel/preset-typescript @babel/preset-env babel-loader -D
+```
+
+- 2、配置 webpack
+
+```
+module: {
+    rules: [
+      {
+        test: /\.ts/,
+        use: ["babel-loader"],
+      }
+    ],
+  },
+```
+
+- **3、创建 `tsconfig.json` 和`.babelrc`。**
+
+```js
+/**
+ * .babelrc
+*/
+{
+  "presets": ["@babel/preset-typescript", "@babel/preset-env"]
+}
+/**
+ * tsconfig.json（如果没有，则会用默认配置，可以不创建）
+*/
+{}
+```
+
+怎么查看 `typescript` 和 `es6` 已经集成成功
+**源码：es6+typescript**
+
+<img src="./image/code.png">
+
+**打包之后的代码：（打开 dist 文件夹，查看打包文件）**
+
+<img src="./image/pack.png">
+
+- **4、polyfilll 配置**
+
+因为 babel 只负责语法转换，比如将 ES6 的语法转换成 ES5。但如果有些对象、方法，浏览器本身不支持，比如：
+
+- 全局对象：Promise、WeakMap 等。
+- 全局静态函数：Array.from、Object.assign 等。
+- 实例方法：比如 Array.prototype.includes 等。 此时，需要引入 babel-polyfill 来模拟实现这些对象、方法。
+
+但是从 Babel 7.4.0 开始，@babel/polyfill 这个包已经被弃用，取而代之的是直接包含 core-js/stable（以填充 ECMAScript 特性）和 regenerator-runtime/runtime 当使用 usage or entry 选项时，@babel/preset-env 会将对 core-js 模块的直接引用添加为导入，所以需要我们手动安装 core-js。
+
+```js
+npm install core-js@3 --save
+or
+npm install core-js@2 --save
+
+/**
+ * .babelrc
+*/
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ]
+  ]
+}
+```
+
+- **5、避免 polyfill 污染全局。**
+
+如果只按照步骤 3 配置的话，会有一个问题——污染全局变量。为了解决这个问题，我们需要引入@babel/plugin-transform-runtime。
+
+```js
+npm install @babel/plugin-transform-runtime -D
+当corejs=2时，npm install --save @babel/runtime-corejs2
+当corejs=3时，npm install --save @babel/runtime-corejs3
+/**
+ * .babelrc
+*/
+"plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": 3
+      }
+    ]
+  ]
+
+```
+
+至此，集成 `typescript` 和 `es6`完成。
+
+### 集成 `less`
+
+- 1、安装`less-loader`、`css-loader`、`style-loader`、`less`
+
+```
+npm install less-loader css-loader style-loader less -D
+```
+
+- 2、webpack 配置
+
+```js
+module: {
+    rules: [
+      {
+        test: /\.less/,
+        use: ["style-loader", "css-loader", "less-loader"],
+      },
+    ],
+  },
+```
