@@ -138,8 +138,4 @@ export default defineComponent({})
 
 这时，{} 就变成了 defineComponent 的参数，那么对参数类型的提示，就可以实现对 {} 中属性的提示，外还可以进行对参数的一些类型推导等操作。
 
-### setup
-
-### ref
-
-### reactive
+### 最后附上[github 地址](https://github.com/wmjchf/vue3.git)
