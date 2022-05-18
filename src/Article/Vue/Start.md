@@ -6,6 +6,7 @@ nav:
 group:
   path: /vue
   title: Vue3
+  order: 3
 ---
 
 # 初识 Vue3

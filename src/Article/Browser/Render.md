@@ -6,6 +6,7 @@ nav:
 group:
   path: /browser
   title: 浏览器渲染
+  order: 2
 ---
 
 # 渲染原理解析

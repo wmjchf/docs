@@ -6,6 +6,7 @@ nav:
 group:
   path: /webpack
   title: Webpack
+  order: 5
 ---
 
 # 从零到一配置 webpack

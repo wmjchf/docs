@@ -6,6 +6,7 @@ nav:
 group:
   path: /typescript
   title: Typescript
+  order: 4
 ---
 
 # 为什么要使用 Typescript
