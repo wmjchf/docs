@@ -1,5 +1,6 @@
 ---
-title: webpack配置
+title: 认识webpack
+order: 0
 nav:
   title: 优秀文章
   path: /article
@@ -9,284 +10,36 @@ group:
   order: 5
 ---
 
-# 从零到一配置 webpack
+# 前端工程化
 
-## 基础配置
+`前端工程化`的主要目标就是解放生产力、提高生产效率。通过制定一系列的规范，借助工具和框架解决前端开发以及前后端协作过程中的痛点和难度问题。
 
-- **1、安装`webpack`,`webpack-cli`。**
+前端越来越重，复杂度越来越高，配套的前端工程体系也在不断发展和完善，可简单分为开发、构建、发布 3 条主线：
 
-```
-npm install webpack webpack-cli -D
-```
+- 前端框架：插件化（jQuery） -> 模块化（RequireJS） -> 组件化（React）
+- 构建工具：任务化（grunt/gulp） -> 系统化（webpack）
+- CI/CD：工具化（Jenkins） -> 自动化（Web Hook）
 
-- **2、创建`webpck`配置文件,一般我们会把 webpack 的公共配置抽离出来，然后分为`开发环境`和`生产环境`。**
+三大主线撑起了前端工程体系，系统地覆盖了前端开发的主流程，其中的工程方法也彼此互补、相互影响。
 
-```
-// 首先要安装webpack-merge
-npm install webpack-merge -D
-// 然后创建common、dev、prod配置文件，文件名随意发挥。
-common.webpack.js、dev.webpack.js、prod.webpack.js
-```
+# webpack 的作用
 
-- 3、为了方便，我们会把`webpack`命令配置在`package.json script`脚本当中。（这步不是必须）。
+webpack 的作用有以下几点：
 
-```js
-"scripts": {
-    "build:pro": "webpack --config ./webpack/pro.config.js",
-    "build:dev": "webpack --config ./webpack/dev.config.js"
-}
-```
+- 模块打包。可以将不同模块的文件打包整合在一起，并且保证它们之间的引用正确，执行有序。利用打包我们就可以在开发的时候根据我们自己的业务自由划分文件模块，保证项目结构的清晰和可读性。
+- 编译兼容。在前端的“上古时期”，手写一堆浏览器兼容代码一直是令前端工程师头皮发麻的事情，而在今天这个问题被大大的弱化了，通过`webpack` 的 `Loader` 机制，不仅仅可以帮助我们对代码做 `polyfill`，还可以编译转换诸如`.less`, `.vue`, `.jsx` 这类在浏览器无法识别的格式文件，让我们在开发的时候可以使用新特性和新语法做开发，提高开发效率。
+- 能力扩展。通过 `webpack` 的 `Plugin` 机制，我们在实现模块化打包和编译兼容的基础上，可以进一步实现诸如按需加载，代码压缩等一系列功能，帮助我们进一步提高自动化程度，工程效率以及打包输出的质量。
 
-- **4、配置公共 config 文件。**
+# 打包运行原理
 
-```js
-const config = {
-  // 入口文件（单入口）
-  entry: '入口文件文件地址',
-  // 打包之后的输出文件目录
-  output: {
-    filename: 'js/[name].[contenthash:8].js',
-    path: '输出文件目录',
-  },
-};
+- 1、读取 `webpack` 的配置参数；
+- 2、启动 `webpack`，创建 `Compiler` 对象并开始解析项目；
+- 3、从入口文件（`entry`）开始解析，并且找到其导入的依赖模块，递归遍历分析，形成依赖关系树；
+- 4、对不同文件类型的依赖模块文件使用对应的 Loader 进行编译，最终转为 Javascript 文件；
+- 5、整个过程中 webpack 会通过发布订阅模式，向外抛出一些 hooks，而 webpack 的插件即可通过监听这些关键的事件节点，执行插件任务进而达到干预输出结果的目的。
 
-module.exports = config;
+其中文件的解析与构建是一个比较复杂的过程，在 `webpack` 源码中主要依赖于 `compiler` 和 `compilation` 两个核心对象实现。
 
-// example
-/**
- * common.config.js
- */
-const config = {
-  entry: './src/index.js',
-  output: {
-    filename: './js/bundle.[contenthash:8].js',
-  },
-};
+`compiler` 对象是一个全局单例，他负责把控整个 `webpack` 打包的构建流程。`compilation` 对象是每一次构建的上下文对象，它包含了当次构建所需要的所有信息，每次热更新和重新构建，`compiler` 都会重新生成一个新的 `compilation` 对象，负责此次更新的构建过程。
 
-module.exports = config;
-```
-
-- **5、配置开发环境 config 文件。**
-
-```js
-/**
- * dev.config.js
- */
-const { merge } = require('webpack-merge');
-const common = require('./common.config.js');
-const config = merge(common, {
-  mode: 'development',
-});
-
-module.exports = config;
-```
-
-- **6、配置生产环境 config 文件。**
-
-```js
-/**
- * prod.config.js
- */
-const { merge } = require('webpack-merge');
-const common = require('./common.config.js');
-const config = merge(common, {
-  mode: 'production',
-});
-
-module.exports = config;
-```
-
-至此，运行`npm run build:dev`即可。运行完之后在`dist/js`文件夹中可以找到打包的文件，在`html`文件中引用此打包文件就可以使用了。但是这里不够方便，需要手动创建 `html` 文件并引入打包的文件，才能看到 js 运行的结果。
-
-- 7、安装`html-webpack-plugin`并且配置,自动引入打包文件。
-
-```js
-npm install html-webpack-plugin -D
-/**
- * public/index.html
-*/
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body></body>
-</html>
-
-/**
-* common.config.js
-*/
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-
-const config = {
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "webpack构建项目",
-      template: "./public/index.html", // 需要提前创建此模板。
-    }),
-  ],
-};
-
-module.exports = config;
-```
-
-至此，运行`npm run build:dev`即可。运行完之后在`dist`文件夹中可以看到`index.html`文件。但是这里还是不够方便，需要手动打开`index.html`，而且`js`修改之后不能实时看到打包结果。
-
-- 8、安装`webpack-dev-server`，启动一个本地服务。（只针对开发环境）
-
-```js
-npm install webpack-dev-server -D
-
-/**
-* 修改package.json脚本，开发环境用webpack-dev-server打包
-*/
-"build:dev": "webpack server --config ./webpack/dev.config.js"
-
-/**
- * dev.config.js
-*/
-{
-  devServer: {
-    port: 3000,
-    open: true,
-    hot: true,
-    static: "./dist",
-  },
-}
-```
-
-至此，运行`npm run build:dev`即可。自动打开浏览器，并且能够实时更新打包。
-
-## 进阶配置
-
-### 集成 `typescript` 和 `es6`
-
-- 0、resolve.extensions 配置,自动配置文件后缀名。
-
-```js
-resolve: {
-    extensions: [".ts", "..."],
-},
-```
-
-- **1、安装`typescript`、`@babel/core`、`@babel/preset-typescript`、`@babel/preset-env`、`babel-loader`。**
-
-```js
-npm install typescript @babel/core @babel/preset-typescript @babel/preset-env babel-loader -D
-```
-
-- 2、配置 webpack
-
-```
-module: {
-    rules: [
-      {
-        test: /\.ts/,
-        use: ["babel-loader"],
-      }
-    ],
-  },
-```
-
-- **3、创建 `tsconfig.json` 和`.babelrc`。**
-
-```js
-/**
- * .babelrc
-*/
-{
-  "presets": ["@babel/preset-typescript", "@babel/preset-env"]
-}
-/**
- * tsconfig.json（如果没有，则会用默认配置，可以不创建）
-*/
-{}
-```
-
-怎么查看 `typescript` 和 `es6` 已经集成成功
-**源码：es6+typescript**
-
-<img src="./image/code.png">
-
-**打包之后的代码：（打开 dist 文件夹，查看打包文件）**
-
-<img src="./image/pack.png">
-
-- **4、polyfilll 配置**
-
-因为 babel 只负责语法转换，比如将 ES6 的语法转换成 ES5。但如果有些对象、方法，浏览器本身不支持，比如：
-
-- 全局对象：Promise、WeakMap 等。
-- 全局静态函数：Array.from、Object.assign 等。
-- 实例方法：比如 Array.prototype.includes 等。 此时，需要引入 babel-polyfill 来模拟实现这些对象、方法。
-
-但是从 Babel 7.4.0 开始，@babel/polyfill 这个包已经被弃用，取而代之的是直接包含 core-js/stable（以填充 ECMAScript 特性）和 regenerator-runtime/runtime 当使用 usage or entry 选项时，@babel/preset-env 会将对 core-js 模块的直接引用添加为导入，所以需要我们手动安装 core-js。
-
-```js
-npm install core-js@3 --save
-or
-npm install core-js@2 --save
-
-/**
- * .babelrc
-*/
-{
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "useBuiltIns": "usage",
-        "corejs": 3
-      }
-    ]
-  ]
-}
-```
-
-- **5、避免 polyfill 污染全局。**
-
-如果只按照步骤 3 配置的话，会有一个问题——污染全局变量。为了解决这个问题，我们需要引入@babel/plugin-transform-runtime。
-
-```js
-npm install @babel/plugin-transform-runtime -D
-当corejs=2时，npm install --save @babel/runtime-corejs2
-当corejs=3时，npm install --save @babel/runtime-corejs3
-/**
- * .babelrc
-*/
-"plugins": [
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "corejs": 3
-      }
-    ]
-  ]
-
-```
-
-至此，集成 `typescript` 和 `es6`完成。
-
-### 集成 `less`
-
-- 1、安装`less-loader`、`css-loader`、`style-loader`、`less`
-
-```
-npm install less-loader css-loader style-loader less -D
-```
-
-- 2、webpack 配置
-
-```js
-module: {
-    rules: [
-      {
-        test: /\.less/,
-        use: ["style-loader", "css-loader", "less-loader"],
-      },
-    ],
-  },
-```
+而每个模块间的依赖关系，则依赖于 `AST` 语法树。每个模块文件在通过 `Loader` 解析完成之后，会通过 `acorn` 库生成模块代码的 `AST` 语法树，通过语法树就可以分析这个模块是否还有依赖的模块，进而继续循环执行下一个模块的编译解析。
