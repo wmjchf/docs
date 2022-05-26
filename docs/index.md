@@ -24,4 +24,7 @@ features:
   - icon: https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/flutter.png
     title: flutter
     desc: 了解dart、flutter的基本使用，目前正在学习当中
+  - icon: https://cdn.jsdelivr.net/gh/fjc0k/yapi-to-typescript/assets/logo.png
+    title: YApi to TypeScript
+    desc: 作为开源库的贡献者之一，YT是代码生成工具，可根据 YApi 或 Swagger 的接口定义生成 TypeScript 或 JavaScript 的接口类型及其请求函数代码。
 ---
