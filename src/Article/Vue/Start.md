@@ -1,5 +1,5 @@
 ---
-title: 初识Vue3
+title: 初探Vue3
 nav:
   title: 优秀文章
   path: /article

@@ -1,5 +1,5 @@
 ---
-title: 认识webpack
+title: 初探webpack
 order: 0
 nav:
   title: 优秀文章
