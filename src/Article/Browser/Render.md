@@ -5,8 +5,9 @@ nav:
   path: /article
 group:
   path: /browser
-  title: 浏览器渲染
+  title: 浏览器
   order: 2
+order: 1
 ---
 
 # 渲染原理解析
