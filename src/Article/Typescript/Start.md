@@ -7,6 +7,7 @@ group:
   path: /typescript
   title: Typescript
   order: 4
+order: 0
 ---
 
 # 为什么要使用 Typescript
