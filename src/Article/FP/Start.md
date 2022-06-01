@@ -7,6 +7,7 @@ group:
   path: /fp
   title: 函数式编程
   order: 6
+order: 1
 ---
 
 # 初探函数式编程
