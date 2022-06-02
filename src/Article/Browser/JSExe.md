@@ -75,17 +75,6 @@ function a() {
 
 记录在其关联的词法环境范围内创建的标识符绑定。`Environment Records` 是一个抽象类，存在三个具体的子类，`Declarative Environment Record` ，`Object Environment Record`，`Global Environment Record（全局环境记录）`。
 
-### 词法环境的创建
-
-在代码片段执行之前的编译阶段(词法分析，语法分析以及机器码生成)，会收集相应词法环境信息。 以函数声明为例，这个过程如下：
-
-- 首先需要创建一个 arguments object 对象，用于保存函数入参对象， 完成对入参的初始化.
-- 扫描遍历并查找函数体中声明的函数和变量（注意表达的次序），初始化后保存在变量对象中.
-
-编译结束后，这部分数据信息都被保存在相应的 `AST` 节点中。
-
-当执行上下文创建的时候会根据 `AST` 节点上的词法环境信息创建对应的词法环境（与执行上下文一一对应）。
-
 ## LexicalEnvironment 与 VariableEnvironment
 
 `LexicalEnvironment` 中记录 `let`、`const` 等声明，`VariableEnvironment` 则仅处理 VariableStatements 即 `var` 声明。
@@ -147,54 +136,59 @@ console.log('Inside Global Execution Context');
 
 ### 创建阶段
 
-- 首先，为词法环境内的每个函数或变量构建到外部环境的连接。告诉执行上下文它应该包含什么，以及它应该在哪里查找解析函数引用和变量值的方法。
-- 接着，创建一个环境记录，其中变量、函数和函数参数都在内存中完成。
-- 最后，在第一步中创建的每个执行上下文中确定 this 的值(对于全局执行上下文，this 指向的是 window)。
+### 创建词法环境
+
+在代码片段执行之前的编译阶段(词法分析，语法分析以及机器码生成)，会收集相应词法环境信息。 以函数声明为例，这个过程如下：
+
+- 首先需要创建一个 arguments object 对象，用于保存函数入参对象， 完成对入参的初始化.
+- 扫描遍历并查找函数体中声明的函数和变量（注意表达的次序），初始化后保存在变量对象中.
+
+编译结束后，这部分数据信息都被保存在相应的 `AST` 节点中。
+
+当执行上下文创建的时候会根据 `AST` 节点上的词法环境信息创建对应的词法环境（与执行上下文一一对应）。
 
 因此，咱们可以将创建阶段表示为：
 
 ```js
-// 全局执行上下文
-GEC = {
-  lexicalEnvironment: {
-    environmentRecord: {
-      type: 'Global',
-      declarativeRecord: {
-        type: "Declarative",
-        a: <uninitialized>,
-      	b: <uninitialized>,
-      	f: <function>
-      },
-      objectRecord: {
-        type: "Object",
-      	Infinity: +∞,
-      	isFinite: <function>
-      	...balabala
-      },
-    },
-    refToOuter: null,
-  },
-  this: window,
-};
-// 局部执行上下文
-FEC = {
-  lexicalEnvironment: {
-    environmentRecord: {
-      type: "Function",
-      Arguments: {0: 1, length: 1},
-      c: <uninitialized>,
-      this: <Global Object>
-    },
-    refToOuter: GEC // global execution context
-  },
-  variableEnvironment: {
-    environmentRecord: {
-      type: "Function",
-      d: undefined,
-      this: <Global Object>
-    },
-    refToOuter: GEC // global execution context
-  }
+// 全局执行上下文创建
+GlobalExectionContext = {
+	LexicalEnvironment: {
+		EnvironmentRecord: {
+			Type: "Object",
+			a: <uninitiallized>, // 创建阶段的a未初始化
+			b: <uninitiallized>, // 创建阶段的b未初始化
+			mutiply: <func>
+		}
+		outer: <null>,
+		ThisBinding: <Global Object>
+	},
+	VariableEnvironment: {
+		EnvironmentRecord: {
+			Type: "Object",
+			c: undefined, // 创建阶段c已初始化，但未赋值
+		}
+		outer: <null>,
+		ThisBinding: <Global Object>
+	}
+}
+// 局部执行上下文创建
+FunctionExectionContext = {
+	LexicalEnvironment: {
+		EnvironmentRecord: {
+			Type: "Declarative",
+			Arguments: {0: 20, 1: 30, length: 2},
+		}
+		outer: <GlobalLexicalEnvironment>,
+		ThisBinding: <Global Object or undefine>
+	},
+	VariableEnvironment: {
+		EnvironmentRecord: {
+			Type: "Declarative",
+			g: undefined,
+		}
+		outer: <GlobalLexicalEnvironment>,
+		ThisBinding: <Global Object or undefine>
+	}
 }
 ```
 
@@ -202,6 +196,47 @@ FEC = {
 
 这是代码开始在创建阶段形成的执行上下文中运行的阶段，并逐行分配变量值。
 
-在执行开始时，JS 引擎在其创建阶段对象中寻找执行函数的引用。如果不能在自己的作用域内找到它，它将继续向上查找，直到到达全局环境。
+因此根据创建阶段，可将执行阶段表示为：
 
-如果在全局环境中没有找到引用，它将返回一个错误。但是，如果找到了一个引用，并且函数执行正确，那么这个特定函数的执行上下文将从堆栈中弹出，JS 引擎将移动到下一个函数，在那里，它们的执行上下文将被添加到堆栈中并执行，依此类推。
+```js
+// 全局执行上下文执行
+GlobalExectionContext = {
+	LexicalEnvironment: {
+		EnvironmentRecord: {
+			Type: "Object",
+			a:  20, // 变量已赋值
+			b: 30,  // 变量已赋值
+			mutiply: <func>
+		}
+		outer: <null>,
+		ThisBinding: <Global Object>
+	},
+	VariableEnvironment: {
+		EnvironmentRecord: {
+			Type: "Object",
+			c: undefined,
+		}
+		outer: <null>,
+		ThisBinding: <Global Object>
+	}
+}
+// 局部执行上下文执行
+FunctionExectionContext = {
+	LexicalEnvironment: {
+		EnvironmentRecord: {
+			Type: "Declarative",
+			Arguments: {0: 20, 1: 30, length: 2},
+		}
+		outer: <GlobalLexicalEnvironment>,
+		ThisBinding: <Global Object or undefine>
+	},
+	VariableEnvironment: {
+		EnvironmentRecord: {
+			Type: "Declarative",
+			g: 20,
+		}
+		outer: <GlobalLexicalEnvironment>,
+		ThisBinding: <Global Object or undefine>
+	}
+}
+```
