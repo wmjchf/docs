@@ -31,23 +31,70 @@ console.log(name); // Uncaught ReferenceError: name is not defined
 在 js 当中，根据可访问范围，作用域可分为`全局作用域`和`局部作用域`。上面的例子中，由于`name`在全局作用域没有声明，所以在全局作用域下取值会报错。
 
 - `全局作用域`是指变量可以在当前脚本的任意位置访问。
-- `局部作用域`：只作用于函数内部，只能在函数内部访问。
+- `局部作用域`只作用于函数内部，只能在函数内部访问。
 
-### 词法环境 Lexical Environment（词法作用域）
+**在 ES5 后，Scope 被替代为 Environment，Environment 取代了作用域，称为 `Lexical Environment（词法环境）`。**
+
+## 词法环境 Lexical Environment（词法作用域）
 
 `Lexical Environment` 制订了 JavaScript 引擎如何根据标识符名称查找变量的规则和机制，因此它维护了一个 `Identifier-Variable` 的映射结构（Environment Record）来进行管理： 这里的 `Identifier` 是指变量或者函数标识符的名字，`Variable` 是指对应变量的引用（可以是对象，函数，基本值）。
 
 通常情况下，词法环境总是和一些特定的语法结构相关联，例如函数声明（非执行），代码块，try..catch 结构的 catch 块等。
 
-每当执行到这些代码片段，JavaScript 就会创建一个新的词法环境，用于记录和存储当前执行代码中所声明的变量，函数（包括函数入参）的对象。 通过 Lexical Environment 以及对应执行环境下的词法/变量对象，构建了 JavaScript 变量作用域的概念。
+每当执行到这些代码片段，JavaScript 就会创建一个新的词法环境，用于记录和存储当前执行代码中所声明的变量，函数（包括函数入参）的对象。
 
-除此之外，`Lexical Environment` 还维护了一个指针引用 `Outer Environment Reference`，它指向了当前词法环境外部词法环境。 通过 `Outer Environment Reference` ，有嵌套代码结构的词法环境被（单向）串接了起来，从而形成了`作用域链`的设计。
+词法环境有两大成员：`Environment Record（环境记录）`，可能为 null 的 `Outer Lexical Environment（外部词法环境引用）`。
 
-### 作用域链
+<img src="./image/lexical.png" />
+
+### Outer Lexical Environment（外部词法环境引用）
+
+`Lexical Environment` 维护了一个指针引用 `Outer Environment Reference`，它指向了当前词法环境外部词法环境。 通过 `Outer Environment Reference` ，有嵌套代码结构的词法环境被（单向）串接了起来，从而形成了`作用域链`的设计。
+
+以下面例子为例：
+
+```js
+// Global Lexical Environment
+function a() {
+  // Function Lexical Environment
+  function b() {
+    // Function Lexical Environment
+  }
+}
+```
+
+分析（以下代码不考虑函数运行时机）:
+
+- 进入代码，创建全局词法环境。
+- 向下执行，读到 a 函数声明，则创建 a 函数词法环境，且 Outer 指向全局词法环境。
+- 继续向下执行，读到 b 函数声明，则创建 b 函数词法环境，且 Outer 指向 b 函数词法环境。
+
+<img src="./image/lexical_all.png" />
+
+### Environment Record
+
+记录在其关联的词法环境范围内创建的标识符绑定。`Environment Records` 是一个抽象类，存在三个具体的子类，`Declarative Environment Record` ，`Object Environment Record`，`Global Environment Record（全局环境记录）`。
+
+### 词法环境的创建
+
+在代码片段执行之前的编译阶段(词法分析，语法分析以及机器码生成)，会收集相应词法环境信息。 以函数声明为例，这个过程如下：
+
+- 首先需要创建一个 arguments object 对象，用于保存函数入参对象， 完成对入参的初始化.
+- 扫描遍历并查找函数体中声明的函数和变量（注意表达的次序），初始化后保存在变量对象中.
+
+编译结束后，这部分数据信息都被保存在相应的 `AST` 节点中。
+
+当执行上下文创建的时候会根据 `AST` 节点上的词法环境信息创建对应的词法环境（与执行上下文一一对应）。
+
+## LexicalEnvironment 与 VariableEnvironment
+
+`LexicalEnvironment` 中记录 `let`、`const` 等声明，`VariableEnvironment` 则仅处理 VariableStatements 即 `var` 声明。
+
+## 作用域链
 
 `作用域链`定义了当变量在当前上下文访问不到的时候如何沿作用域链继续查询的一套规则。
 
-`全局变量`是可以被所有`局部作用域`所访问的，相反`全局作用域`是无权访问`局部变量`的，同一作用域下， 里层的`局部作用域`可以访问外层的`局部变量`，反之不行，即越靠里面作用域权限越大。
+由于每个词法环境的 Outer 记录了外层词法环境的引用，当在自身词法环境记录无法寻找到该标识符时，可以根据 Outer 向外层寻找，直到 null（有木有觉得很像[[Prototype]]，自身寻找不到属性，则沿着[[Prototype]]查找，直到 null）
 
 ## 执行栈
 
@@ -89,6 +136,72 @@ console.log('Inside Global Execution Context');
 
 - 一旦所有代码执行完毕，JavaScript 引擎从当前栈中移除全局执行上下文。
 
-## 执行上下文（执行环境）
+## 执行上下文
 
-`执行上下文`是指 函数调用时 在`执行栈`中产生的变量对象，这个变量对象我们无法直接访问，但是可以访问其中的变量、this 对象等。[参考](https://chenzhuo1024.github.io/tech/js/js-context.html)
+`执行上下文`是指 函数调用时 在`执行栈`中产生的变量对象，这个变量对象我们无法直接访问，但是可以访问其中的变量、this 对象等。
+
+执行上下文主要有两个阶段：
+
+- 创建
+- 执行
+
+### 创建阶段
+
+- 首先，为词法环境内的每个函数或变量构建到外部环境的连接。告诉执行上下文它应该包含什么，以及它应该在哪里查找解析函数引用和变量值的方法。
+- 接着，创建一个环境记录，其中变量、函数和函数参数都在内存中完成。
+- 最后，在第一步中创建的每个执行上下文中确定 this 的值(对于全局执行上下文，this 指向的是 window)。
+
+因此，咱们可以将创建阶段表示为：
+
+```js
+// 全局执行上下文
+GEC = {
+  lexicalEnvironment: {
+    environmentRecord: {
+      type: 'Global',
+      declarativeRecord: {
+        type: "Declarative",
+        a: <uninitialized>,
+      	b: <uninitialized>,
+      	f: <function>
+      },
+      objectRecord: {
+        type: "Object",
+      	Infinity: +∞,
+      	isFinite: <function>
+      	...balabala
+      },
+    },
+    refToOuter: null,
+  },
+  this: window,
+};
+// 局部执行上下文
+FEC = {
+  lexicalEnvironment: {
+    environmentRecord: {
+      type: "Function",
+      Arguments: {0: 1, length: 1},
+      c: <uninitialized>,
+      this: <Global Object>
+    },
+    refToOuter: GEC // global execution context
+  },
+  variableEnvironment: {
+    environmentRecord: {
+      type: "Function",
+      d: undefined,
+      this: <Global Object>
+    },
+    refToOuter: GEC // global execution context
+  }
+}
+```
+
+### 执行阶段
+
+这是代码开始在创建阶段形成的执行上下文中运行的阶段，并逐行分配变量值。
+
+在执行开始时，JS 引擎在其创建阶段对象中寻找执行函数的引用。如果不能在自己的作用域内找到它，它将继续向上查找，直到到达全局环境。
+
+如果在全局环境中没有找到引用，它将返回一个错误。但是，如果找到了一个引用，并且函数执行正确，那么这个特定函数的执行上下文将从堆栈中弹出，JS 引擎将移动到下一个函数，在那里，它们的执行上下文将被添加到堆栈中并执行，依此类推。
