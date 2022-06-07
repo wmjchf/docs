@@ -2,7 +2,7 @@
 title: 前端工程化
 order: 0
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /webpack

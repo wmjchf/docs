@@ -1,7 +1,7 @@
 ---
 title: 目录
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
   order: 0
 order: 1

@@ -1,7 +1,7 @@
 ---
 title: 为什么要使用Typescript
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /typescript

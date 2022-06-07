@@ -1,7 +1,7 @@
 ---
 title: Javascript编译
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /browser

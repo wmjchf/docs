@@ -2,7 +2,7 @@
 title: webpack配置
 order: 1
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /webpack

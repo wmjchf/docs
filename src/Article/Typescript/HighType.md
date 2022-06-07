@@ -1,7 +1,7 @@
 ---
 title: 类型编程——入门
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /typescript

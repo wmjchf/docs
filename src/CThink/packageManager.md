@@ -76,5 +76,6 @@ yarn add 开发包包@版本号 -W
 ```
 
 安装成功之后，就可以正常引用了。目录结构示例：
+
 <br />
 <img src="./image/monoDir.png">

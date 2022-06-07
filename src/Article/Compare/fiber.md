@@ -1,7 +1,7 @@
 ---
 title: 有react fiber，为什么不需要vue fiber呢？
 nav:
-  title: 优秀文章
+  title: 基础沉淀
   path: /article
 group:
   path: /compare
