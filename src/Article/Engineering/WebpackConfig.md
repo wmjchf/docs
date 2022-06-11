@@ -1,16 +1,16 @@
 ---
-title: webpack配置
+title: Webpack配置
 order: 1
 nav:
   title: 基础沉淀
   path: /article
 group:
-  path: /webpack
-  title: Webpack
+  path: /engineering
+  title: 前端工程化
   order: 5
 ---
 
-# 从零到一配置 webpack
+# 从零到一配置 Webpack
 
 ## 基础配置
 
