@@ -93,6 +93,7 @@ ESLint 的默认解析器和(espree)核心规则只支持最新的最终 ECMAScr
 "globals": {
     "WX": "readonly",
     "Wang":"writable"
+    ...
 }
 ```
 
