@@ -13,7 +13,7 @@ order: 1
 
 熟话说，不以规矩，不能成方圆。良好的代码规范，不管是对于个人还是团队都非常重要。为了提供代码质量和统一代码规范，我选择了 eslint 来做代码检查，并且在最后提交到 git 仓库时用 husky 搭配 lint-stage 进行预检查，保证线上仓库的代码符合要求。
 
-## eslint 配置
+### eslint 配置
 
 **1、vscode 安装插件 eslint 和 npm 安装 eslint**
 
@@ -124,7 +124,84 @@ rules:{
 }
 ```
 
-至此，配置全部完成。
+至此，eslint 配置全部完成。
+
+### husky 配置
+
+husky 是一个为 git 客户端增加 hook 的工具。在执行 git 命令之前我们可以自定义某些的操作，比如 pre-commit 钩子就会在你执行 git commit 的触发，我们可以在 pre-commit 中实现一些比如 lint 检查、单元测试、代码美化等操作。
+
+**1、首先安装 husky**
+
+```
+npm install husky -D
+```
+
+**2、然后配置运行 npx husky install 命令，执行完命令之后，会出现.husky 的目录**
+
+```
+npx husky install
+```
+
+**3、手动添加 git hooks**
+
+当执行完上面的步骤之后，在.husky 目录下是没有 commit-msg 和 pre-commit 两个目录的，我们要手动添加 hooks，添加完成之后，husky 会自动执行我们添加的操作。
+
+```
+ // 添加pre-commit勾子
+ npx husky add .husky/pre-commit "npx lint-staged --allow-empty $1"
+ // 添加commit-msg勾子
+ npx husky add .husky/commit-msg "npx commitlint --edit $1"
+```
+
+### lint-stage 配置
+
+lint-stage 一个仅仅过滤出 Git 代码暂存区文件(被 git add 的文件)的工具；这个很实用，因为我们如果对整个项目的代码做一个检查，可能耗时很长，如果是老项目，要对之前的代码做一个代码规范检查并修改的话，这可能就麻烦了，可能导致项目改动很大。所以这个 lint-staged，对团队项目和开源项目来说，是一个很好的工具，它是对个人要提交的代码的一个规范和约束。
+
+**1、安装 lint-stage**
+
+```
+npm install lint-staged -D
+```
+
+**2、配置 lint-stage，创建.lintstagedrc**
+
+```js
+{
+    "*.{js,jsx,ts,tsx}": ["eslint"]
+}
+```
+
+### commitlint 配置
+
+**1、安装 commitlint**
+
+```
+npm install --save-dev @commitlint/config-conventional @commitlint/cli
+```
+
+**2、配置.commitlintrc.js**
+
+```js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'type-enum': [
+      2,
+      'always',
+      ['upd', 'feat', 'fix', 'refactor', 'docs', 'chore', 'style', 'revert'],
+    ],
+    'type-case': [0],
+    'type-empty': [0],
+    'scope-empty': [0],
+    'scope-case': [0],
+    'subject-full-stop': [0, 'never'],
+    'subject-case': [0, 'never'],
+    'header-max-length': [0, 'always', 72],
+  },
+};
+```
+
+[husky+lint-staged+commitlint 详细配置可参考这里](https://juejin.cn/post/7002910497565622286)
 
 ## 组件库需要具备哪些特点
 
