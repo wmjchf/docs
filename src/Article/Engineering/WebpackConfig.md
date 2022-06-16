@@ -249,7 +249,7 @@ npm install core-js@2 --save
 
 - **5、避免 polyfill 污染全局。**
 
-如果只按照步骤 3 配置的话，会有一个问题——污染全局变量。为了解决这个问题，我们需要引入@babel/plugin-transform-runtime。
+如果按照步骤 4 配置的话，会有一个问题——污染全局变量。为了解决这个问题，我们需要引入@babel/plugin-transform-runtime。
 
 ```js
 npm install @babel/plugin-transform-runtime -D
@@ -268,6 +268,13 @@ npm install @babel/plugin-transform-runtime -D
   ]
 
 ```
+
+- **6、@babel/preset-env 与@babel/plugin-transform-runtime 使用及场景区别。**
+
+`@babel/preset-env` 拥有根据 useBuiltIns 参数的多种 polyfill 实现，优点是覆盖面比较全（entry）， 缺点是会污染全局， 推荐在业务项目中使用。
+`@babel/runtime` 在 babel 7.4 之后大放异彩， 利用 `corejs3` 也实现了各种内置对象的支持， 并且依靠 `@babel/plugin-transform-runtime` 的能力，沙箱垫片和代码复用， 避免帮助函数重复 inject 过多的问题， 该方式的优点是不会污染全局， 适合在类库开发中使用。
+
+上面 1， 2 两种方式取其一即可， 同时使用没有意义, 还可能造成重复的 polyfill 文件。
 
 至此，集成 `typescript` 和 `es6`完成。
 
