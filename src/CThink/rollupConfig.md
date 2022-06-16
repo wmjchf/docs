@@ -210,3 +210,25 @@ module.exports = {
 - Typescript，提供了完整的定义文件。
 
 以上两点对于组件库是非常重要的。
+
+### rollup 支持 typescirpt
+
+**1、安装 rollup**
+
+```
+yarn add rollup -W -D
+```
+
+**2、配置 rollup.config.js，支持 es6 和 typescript**
+
+```
+import path from "path";
+
+export default {
+  input: path.resolve(__dirname, "./components/index.js"),
+  output: {
+    file: path.resolve(__dirname, "./dist/bundle.js"),
+    format: "esm",
+  },
+};
+```

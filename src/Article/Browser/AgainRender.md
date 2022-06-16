@@ -14,7 +14,7 @@ order: 1
 
 ## 之前的渲染过程
 
-`构建DOM 树` -> `构建CSSOM 树` -> `构建render 树` -> `布局(layout)` -> `绘制(paint)` -> `重排(reflow)` -> `重绘(repaint)`。
+`构建DOM 树` -> `构建CSSOM 树` -> `构建render 树` -> `布局(layout)` -> `绘制(paint)` -> `合成（composition）`。
 
 ## 现在的渲染过程
 
