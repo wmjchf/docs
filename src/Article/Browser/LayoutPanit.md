@@ -50,4 +50,4 @@ order: 3
 
 浏览器运行的单个帧的渲染流水线，称为像素管道。一个经典的图：
 
-<img src="./ab"/>
+<img src="./image/pxPie.png"/>
