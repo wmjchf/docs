@@ -211,8 +211,6 @@ module.exports = {
 
 以上两点对于组件库是非常重要的。
 
-### rollup 支持 typescirpt
-
 **1、安装 rollup**
 
 ```
@@ -231,11 +229,27 @@ import path from "path";
 import babel from "@rollup/plugin-babel";
 import typescript from "@rollup/plugin-typescript";
 
+// 多入口文件
+const componentDir = "components";
+const cModuleNames = fs.readdirSync(path.resolve(__dirname, componentDir));
+const componentEntryFiles = cModuleNames
+  .map((name) =>
+    /^[A-Z]\w*/.test(name) ? `${componentDir}/${name}/index.tsx` : undefined
+  )
+  .filter((n) => !!n);
+
+
+
 export default {
-  input: path.resolve(__dirname, "./components/index.ts"),
+  input: [
+    path.resolve(__dirname, "./components/index.ts"),
+    ...componentEntryFiles,
+  ],
   output: {
-    file: path.resolve(__dirname, "./dist/bundle.js"),
     format: "esm",
+    dir: path.resolve(__dirname, "./dist"),
+    preserveModules: true,
+    preserveModulesRoot: "components",
   },
   plugins: [
     babel({
@@ -247,7 +261,7 @@ export default {
     typescript({
       tsconfig: path.resolve(__dirname, "./tsconfig.json"),
       declaration: true,
-      declarationDir: path.resolve(__dirname, "./libs/types"),
+      declarationDir: path.resolve(__dirname, "./dist/libs/types"),
     }),
   ],
   external: [/@babel\/runtime/],
