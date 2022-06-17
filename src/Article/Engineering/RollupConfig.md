@@ -1,6 +1,6 @@
 ---
 title: Rollup配置
-order: 1
+order: 2
 nav:
   title: 基础沉淀
   path: /article

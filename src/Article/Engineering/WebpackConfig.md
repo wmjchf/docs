@@ -192,89 +192,9 @@ module: {
   },
 ```
 
-- **3、创建 `tsconfig.json` 和`.babelrc`。**
+- 3、Babel 配置
 
-```js
-/**
- * .babelrc
-*/
-{
-  "presets": ["@babel/preset-typescript", "@babel/preset-env"]
-}
-/**
- * tsconfig.json（如果没有，则会用默认配置，可以不创建）
-*/
-{}
-```
-
-怎么查看 `typescript` 和 `es6` 已经集成成功
-**源码：es6+typescript**
-
-<img src="./image/code.png">
-
-**打包之后的代码：（打开 dist 文件夹，查看打包文件）**
-
-<img src="./image/pack.png">
-
-- **4、polyfilll 配置**
-
-因为 babel 只负责语法转换，比如将 ES6 的语法转换成 ES5。但如果有些对象、方法，浏览器本身不支持，比如：
-
-- 全局对象：Promise、WeakMap 等。
-- 全局静态函数：Array.from、Object.assign 等。
-- 实例方法：比如 Array.prototype.includes 等。 此时，需要引入 babel-polyfill 来模拟实现这些对象、方法。
-
-但是从 Babel 7.4.0 开始，@babel/polyfill 这个包已经被弃用，取而代之的是直接包含 core-js/stable（以填充 ECMAScript 特性）和 regenerator-runtime/runtime 当使用 usage or entry 选项时，@babel/preset-env 会将对 core-js 模块的直接引用添加为导入，所以需要我们手动安装 core-js。
-
-```js
-npm install core-js@3 --save
-or
-npm install core-js@2 --save
-
-/**
- * .babelrc
-*/
-{
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "useBuiltIns": "usage",
-        "corejs": 3
-      }
-    ]
-  ]
-}
-```
-
-- **5、避免 polyfill 污染全局。**
-
-如果按照步骤 4 配置的话，会有一个问题——污染全局变量。为了解决这个问题，我们需要引入@babel/plugin-transform-runtime。
-
-```js
-npm install @babel/plugin-transform-runtime -D
-当corejs=2时，npm install --save @babel/runtime-corejs2
-当corejs=3时，npm install --save @babel/runtime-corejs3
-/**
- * .babelrc
-*/
-"plugins": [
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "corejs": 3
-      }
-    ]
-  ]
-
-```
-
-- **6、@babel/preset-env 与@babel/plugin-transform-runtime 使用及场景区别。**
-
-`@babel/preset-env` 拥有根据 useBuiltIns 参数的多种 polyfill 实现，优点是覆盖面比较全（entry）， 缺点是会污染全局， 推荐在业务项目中使用。
-`@babel/runtime` 在 babel 7.4 之后大放异彩， 利用 `corejs3` 也实现了各种内置对象的支持， 并且依靠 `@babel/plugin-transform-runtime` 的能力，沙箱垫片和代码复用， 避免帮助函数重复 inject 过多的问题， 该方式的优点是不会污染全局， 适合在类库开发中使用。
-
-上面 1， 2 两种方式取其一即可， 同时使用没有意义, 还可能造成重复的 polyfill 文件。
+[可参考 Babel 配置](/article/engineering/babel-config)
 
 至此，集成 `typescript` 和 `es6`完成。
 
