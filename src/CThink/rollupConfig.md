@@ -219,16 +219,54 @@ module.exports = {
 yarn add rollup -W -D
 ```
 
-**2、配置 rollup.config.js，支持 es6 和 typescript**
+**2、配置 rollup.config.js，支持 es6 和 typescript，并且输出 typescript 声明文件**
 
-```
+[babel 配置可看这里](/article/engineering/babel-config)
+
+```js
+// npm install typescript @rollup/plugin-babel  @rollup/plugin-typescript -D
+
+// rollup.config.js
 import path from "path";
+import babel from "@rollup/plugin-babel";
+import typescript from "@rollup/plugin-typescript";
 
 export default {
-  input: path.resolve(__dirname, "./components/index.js"),
+  input: path.resolve(__dirname, "./components/index.ts"),
   output: {
     file: path.resolve(__dirname, "./dist/bundle.js"),
     format: "esm",
   },
+  plugins: [
+    babel({
+      babelHelpers: "runtime",
+      extensions: [".js", ".ts", ".jsx", ".tsx"],
+      exclude: "node_modules/**",
+      configFile: path.resolve(__dirname, ".babelrc"),
+    }),
+    typescript({
+      tsconfig: path.resolve(__dirname, "./tsconfig.json"),
+      declaration: true,
+      declarationDir: path.resolve(__dirname, "./libs/types"),
+    }),
+  ],
+  external: [/@babel\/runtime/],
 };
+
+// .babelrc
+{
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-react",
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": 3
+      }
+    ]
+  ]
+}
 ```
