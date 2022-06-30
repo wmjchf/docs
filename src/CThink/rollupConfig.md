@@ -211,13 +211,42 @@ module.exports = {
 
 以上两点对于组件库是非常重要的。
 
+### 认识 babel-plugin-import
+
+babel 的模块化导入插件，在编译的过程中会自动转换为按需引入的方式。
+
+```js
+"plugins": [
+    [
+      "import",
+      {
+        "libraryName": "ui", // 组件包名
+        "libraryDirectory": "es", // 目录，默认 lib
+        "style": true // index.js 当值为css时，css.js
+      }
+    ]
+  ]
+```
+
+当引入组件`import { Button } from 'ui'`,babel 会帮助我们转化成如下：
+
+```js
+var _button = require('ui/es/button');
+require('antd/lib/button/style');
+// 或者
+var _button = require('ui/es/button');
+require('antd/lib/button/style/css');
+```
+
+### 支持 es6 和 typescript
+
 **1、安装 rollup**
 
 ```
 yarn add rollup -W -D
 ```
 
-**2、配置 rollup.config.js，支持 es6 和 typescript，并且输出 typescript 声明文件**
+**2、配置 rollup.config.js，并且以组件维度代码分割和输出 typescript 声明文件**
 
 [babel 配置可看这里](/article/engineering/babel-config)
 
@@ -229,25 +258,12 @@ import path from "path";
 import babel from "@rollup/plugin-babel";
 import typescript from "@rollup/plugin-typescript";
 
-// 多入口文件
-const componentDir = "components";
-const cModuleNames = fs.readdirSync(path.resolve(__dirname, componentDir));
-const componentEntryFiles = cModuleNames
-  .map((name) =>
-    /^[A-Z]\w*/.test(name) ? `${componentDir}/${name}/index.tsx` : undefined
-  )
-  .filter((n) => !!n);
-
-
-
 export default {
-  input: [
-    path.resolve(__dirname, "./components/index.ts"),
-    ...componentEntryFiles,
-  ],
+  input: path.resolve(__dirname, "./components/index.ts"),
   output: {
     format: "esm",
     dir: path.resolve(__dirname, "./dist"),
+    exports: "auto",
     preserveModules: true,
     preserveModulesRoot: "components",
   },
@@ -264,7 +280,7 @@ export default {
       declarationDir: path.resolve(__dirname, "./dist/libs/types"),
     }),
   ],
-  external: [/@babel\/runtime/],
+  external: [/@babel\/runtime/, "react"],
 };
 
 // .babelrc
@@ -284,3 +300,108 @@ export default {
   ]
 }
 ```
+
+### 支持样式按需引入
+
+**1、配置 gulp，支持组件样式按需引入**
+
+```js
+const gulp = require('gulp');
+const less = require('gulp-less');
+const through2 = require('through2');
+const del = require('del');
+
+/**
+ * 拷贝less文件
+ */
+function copyLess() {
+  return gulp
+    .src('packages/ui/components/**/*.less')
+    .pipe(gulp.dest(`packages/ui/es`))
+    .pipe(gulp.dest(`packages/ui/cjs`));
+}
+
+/**
+ * 生成css文件
+ */
+function less2css() {
+  return gulp
+    .src('packages/ui/components/**/*.less')
+    .pipe(less()) // 处理less文件
+    .pipe(gulp.dest(`packages/ui/es`))
+    .pipe(gulp.dest(`packages/ui/cjs`));
+}
+
+/**
+ * 拷贝style/index.js
+ */
+function copyLessJs() {
+  return gulp
+    .src('packages/ui/components/**/*.js')
+    .pipe(gulp.dest(`packages/ui/es`))
+    .pipe(gulp.dest(`packages/ui/cjs`));
+}
+
+/**
+ * 当前组件样式 import './index.less' => import './index.css'
+ * 依赖的其他组件样式 import '../test-comp/style' => import '../test-comp/style/css.js'
+ * 依赖的其他组件样式 import '../test-comp/style/index.js' => import '../test-comp/style/css.js'
+ * @param {string} content
+ */
+function cssInjection(content) {
+  return content
+    .replace(/\/style\/?'/g, "/style/css'")
+    .replace(/\/style\/?"/g, '/style/css"')
+    .replace(/\.less/g, '.css');
+}
+
+/**
+ * 将index.js转成css.js
+ */
+function index2css() {
+  return gulp
+    .src('packages/ui/components/**/*.js')
+    .pipe(
+      through2.obj(function z(file, encoding, next) {
+        this.push(file.clone());
+        // 找到目标
+        if (file.path.match(/(\/|\\)style(\/|\\)index\.js/)) {
+          const content = file.contents.toString(encoding);
+          file.contents = Buffer.from(cssInjection(content)); // 处理文件内容
+          file.path = file.path.replace(/index\.js/, 'css.js'); // 文件重命名
+          this.push(file); // 新增该文件
+          next();
+        } else {
+          next();
+        }
+      }),
+    )
+    .pipe(gulp.dest(`packages/ui/es`))
+    .pipe(gulp.dest(`packages/ui/cjs`));
+}
+
+function copyType() {
+  return gulp
+    .src('packages/ui/es/types/**/*.d.ts')
+    .pipe(gulp.dest(`packages/ui/cjs`))
+    .pipe(gulp.dest(`packages/ui/es`));
+}
+
+function delType(cb) {
+  del(['packages/ui/es/types', 'packages/ui/cjs/types'], cb());
+}
+
+const generateType = gulp.series(copyType, delType);
+
+const build = gulp.parallel(
+  generateType,
+  copyLess,
+  copyLessJs,
+  less2css,
+  index2css,
+);
+
+exports.default = build;
+```
+
+[组件库搭建模板地址](https://github.com/wmjchf/component-template.git)
