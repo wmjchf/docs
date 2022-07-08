@@ -12,6 +12,8 @@ group:
 
 # 从零到一配置 Rollup
 
+## 对 rollup 的理解
+
 ## 基础配置
 
 - **安装 rollup**
@@ -48,3 +50,29 @@ rollup -c
 为此，我们可以用 `插件(plugins)` 在打包的关键过程中更改 `Rollup` 的行为。
 
 这里以`@rollup/plugin-babel`为例。
+
+- **1、安装`@rollup/plugin-babel`。**
+
+```
+npm install @rollup/plugin-babel -D
+```
+
+- **2、配置 babel,创建 babel 配置文件**
+
+具体可参考[babel 配置]()
+
+- **3、rollup 增加 abel 配置项**
+
+```js
+plugins: [
+    babel({
+      babelHelpers: "runtime",
+      extensions: [".js", ".ts", ".jsx", ".tsx"],
+      exclude: "node_modules/**",
+      configFile: path.resolve(__dirname, ".babelrc"),
+    })
+],
+external: [/@babel\/runtime/, "react"],
+```
+
+至此，`rollup` 扩展插件配置完成，相比于 `webpack`，是不是更好理解，配置也更加简单。
