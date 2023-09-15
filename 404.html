@@ -11,21 +11,24 @@
       type="image/x-icon"
       href="https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/Dog.png"
     />
-    <link rel="stylesheet" href="/docs/umi.css" />
+    <link rel="stylesheet" href="/docs/umi.2b3f23da.css" />
     <script>
       window.routerBase = "/docs";
     </script>
     <script>
-      //! umi version: 3.5.28
+      //! umi version: 3.5.41
     </script>
     <script>
       !(function () {
-        var e = localStorage.getItem("dumi:prefers-color"),
-          t = window.matchMedia("(prefers-color-scheme: dark)").matches,
-          r = ["light", "dark", "auto"];
+        var e =
+            navigator.cookieEnabled && void 0 !== window.localStorage
+              ? localStorage.getItem("dumi:prefers-color")
+              : "auto",
+          o = window.matchMedia("(prefers-color-scheme: dark)").matches,
+          t = ["light", "dark", "auto"];
         document.documentElement.setAttribute(
           "data-prefers-color",
-          e === r[2] ? (t ? r[1] : r[0]) : r.indexOf(e) > -1 ? e : r[0]
+          e === t[2] ? (o ? t[1] : t[0]) : t.indexOf(e) > -1 ? e : t[0]
         );
       })();
     </script>
@@ -33,6 +36,6 @@
   <body>
     <div id="root"></div>
 
-    <script src="/docs/umi.js"></script>
+    <script src="/docs/umi.56de24d9.js"></script>
   </body>
 </html>
