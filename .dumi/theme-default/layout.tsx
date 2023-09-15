@@ -117,7 +117,7 @@ const Layout: React.FC<IRouteComponentProps> = ({ children, location }) => {
       )}
       {showHero && Hero(meta.hero)}
 
-      {showFeatures && Features(meta.features)}
+      {/* {showFeatures && Features(meta.features)} */}
       <div className="__dumi-default-layout-content">
         {children}
         {!showHero && !showFeatures && meta.filePath && !meta.gapless && (
