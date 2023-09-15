@@ -1,7 +1,7 @@
 ---
 hero:
   title: DogWang
-  image: https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/author.jpeg
+  image: https://avatars.githubusercontent.com/u/36124772?v=4
   desc: 世界上只有一种真正的英雄主义，那就是在认清生活的真相后依然热爱生活。<br/>欢迎来到DogWang的世界！
   actions:
     - text: 进入DogWang的世界

@@ -72,11 +72,17 @@ body {
   }
 
   &-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: calc(100vh - 64px);
     margin: -50px -58px 0;
-    padding: 100px 0;
     text-align: center;
+    // padding: 100px 0;
+    // text-align: center;
     background-color: #f5f6f8;
-
     [data-prefers-color='dark'] & {
       background-color: @c-light-bg-dark;
     }

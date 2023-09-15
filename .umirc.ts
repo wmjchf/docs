@@ -4,9 +4,9 @@ export default defineConfig({
   base: '/docs',
   publicPath: '/docs/',
   title: 'DogWang',
-  favicon:
-    'https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/Dog.png',
-  logo: 'https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/Dog.png',
+  // favicon:
+  //   'https://static-454c783b-73da-4f5e-a7b5-a00a2cb1ebc3.bspapp.com/Dog.png',
+  // logo: 'https://avatars.githubusercontent.com/u/36124772?v=4',
   outputPath: 'dist',
   mode: 'site',
   // more config: https://d.umijs.org/config
