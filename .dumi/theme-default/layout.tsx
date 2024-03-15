@@ -57,6 +57,7 @@ const Layout: React.FC<IRouteComponentProps> = ({ children, location }) => {
   const isSiteMode = mode === 'site';
   const showHero = isSiteMode && meta.hero;
   const showFeatures = isSiteMode && meta.features;
+
   const showSideMenu =
     meta.sidemenu !== false && !showHero && !showFeatures && !meta.gapless;
   const showSlugs =

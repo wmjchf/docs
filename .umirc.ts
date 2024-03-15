@@ -9,6 +9,7 @@ export default defineConfig({
   // logo: 'https://avatars.githubusercontent.com/u/36124772?v=4',
   outputPath: 'dist',
   mode: 'site',
+
   // more config: https://d.umijs.org/config
   themeConfig: {
     carrier: 'dogc', // 设备状态栏左侧的文本内容
